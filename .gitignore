@@ -1,0 +1,9 @@
+/data
+.DS_Store
+.idea
+/notebooks
+/venv
+/experiments
+/lightning_logs
+__pycache__
+/weights
