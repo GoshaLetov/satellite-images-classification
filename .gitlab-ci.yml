@@ -1,0 +1,38 @@
+image: python:3.10
+
+stages:
+  - prepare
+  - lint
+
+.ssh_key_template: &ssh_key_template
+  before_script:
+    - chmod 400 $SSH_PRIVATE_KEY
+    - mkdir -p ~/.ssh
+    - cp $SSH_PRIVATE_KEY ~/.ssh/id_rsa
+    - chmod 400 ~/.ssh/id_rsa
+
+  after_script:
+    - rm -f ~/.ssh/id_rsa
+
+prepare:
+  <<: *ssh_key_template
+  stage: prepare
+  script:
+    - make download_test_data
+    - pip install dvc dvc_ssh
+    - dvc remote modify origin ask_passphrase false
+    - dvc remote modify origin --local keyfile ~/.ssh/id_rsa
+    - dvc pull
+  artifacts:
+    paths:
+      - weights/*.pt
+      - test.jpg
+    expire_in: 1 day
+
+lint:
+  stage: lint
+  script:
+    - pip install wemake-python-styleguide
+    - flake8 src/
+  needs:
+    - prepare

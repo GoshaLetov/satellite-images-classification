@@ -1,0 +1,80 @@
+project:
+  name: 'PlanetClassificationModel'
+  seed: 42
+  experiment: 'best'
+  log_every_n_steps: 20
+
+model:
+  name: 'efficientnet_b1'
+  num_labels: 17
+  pretrained: True
+  n_epochs: 10
+  accelerator: 'gpu'
+  device: 0
+
+data:
+  data_path: '/home/hw-01-modeling/data'
+  num_workers: 8
+  train_fraction: 0.8
+  train_batch_size: 128
+  valid_batch_size: 128
+  width: 224
+  height: 224
+  augmentations:
+    - name: 'HorizontalFlip'
+      kwargs:
+        p: 0.5
+    - name: 'VerticalFlip'
+      kwargs:
+        p: 0.5
+    - name: 'HueSaturationValue'
+      kwargs:
+        p: 0.5
+        hue_shift_limit: 20
+        sat_shift_limit: 30
+        val_shift_limit: 20
+    - name: 'RandomBrightnessContrast'
+      kwargs:
+        p: 0.5
+        brightness_limit: 0.2
+        contrast_limit: 0.2
+    - name: 'ShiftScaleRotate'
+      kwargs: {}
+    - name: 'GaussianBlur'
+      kwargs: {}
+
+metric:
+  task: 'multilabel'
+  threshold: 0.5
+  monitor_metric: 'valid.F1Score'
+  monitor_mode: 'max'
+  metrics:
+    - name: 'torchmetrics.Accuracy'
+      kwargs:
+        average: 'weighted'
+    - name: 'torchmetrics.F1Score'
+      kwargs:
+        average: 'macro'
+    - name: 'torchmetrics.Precision'
+      kwargs:
+        average: 'macro'
+    - name: 'torchmetrics.Recall'
+      kwargs:
+        average: 'macro'
+
+criterion:
+  - name: 'torch.nn.BCELoss'
+    weight: 1.0
+    kwargs: {}
+
+optimizer:
+  name: 'torch.optim.AdamW'
+  kwargs:
+    lr: 1e-3
+    weight_decay: 1e-5
+
+scheduler:
+  name: 'torch.optim.lr_scheduler.CosineAnnealingLR'
+  kwargs:
+    T_max: 10
+    eta_min: 1e-5
