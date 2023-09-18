@@ -7,3 +7,5 @@
 /lightning_logs
 __pycache__
 /weights
+output/onnx/*.onnx
+output/weights/*.pt

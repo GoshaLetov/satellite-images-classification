@@ -1,7 +1,8 @@
 import os
 
 PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
-WEIGHTS_PATH = os.path.join(PROJECT_PATH, 'weights')
+WEIGHTS_PATH = os.path.join(os.path.join(PROJECT_PATH, 'output'), 'weights')
+ONNX_PATH = os.path.join(os.path.join(PROJECT_PATH, 'output'), 'onnx')
 PL_LOGS_PATH = os.path.join(PROJECT_PATH, 'lightning_logs')
 CLEARML_PATH = os.path.join(PROJECT_PATH, 'experiments')
 

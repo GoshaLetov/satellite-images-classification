@@ -42,7 +42,7 @@ def train(run_config: Config):
     experiment_save_path = os.path.join(constants.CLEARML_PATH, run_config.project.experiment)
     os.makedirs(experiment_save_path, exist_ok=True)
     os.makedirs(constants.WEIGHTS_PATH, exist_ok=True)
-    weights_save_file = os.path.join(constants.WEIGHTS_PATH, f'{run_config.project.experiment}.pt')
+    os.makedirs(constants.ONNX_PATH, exist_ok=True)
 
     checkpoint_callback = ModelCheckpoint(
         experiment_save_path,
@@ -78,7 +78,17 @@ def train(run_config: Config):
     trainer.test(ckpt_path=checkpoint_callback.best_model_path, datamodule=datamodule)
 
     model = model.load_from_checkpoint(checkpoint_path=checkpoint_callback.best_model_path)
-    torch.save(obj=model.state_dict(), f=weights_save_file)
+
+    torch.save(
+        obj=model.state_dict(),
+        f=os.path.join(constants.WEIGHTS_PATH, f'{run_config.project.experiment}.pt'),
+    )
+    model.to_onnx(
+        file_path=os.path.join(constants.ONNX_PATH, f'{run_config.project.experiment}.onnx'),
+        input_sample=torch.randn(1, 3, config.data.height, config.data.width),
+        input_names=['input'],
+        output_names=['output'],
+    )
 
     shutil.rmtree(path=constants.PL_LOGS_PATH)
     shutil.rmtree(path=constants.CLEARML_PATH)

@@ -23,11 +23,3 @@ install_python_packages:
 create_venv:
 	python3.10 -m venv venv
 	source venv/bin/activate
-
-update_base_model:
-	rm -f models/best.pt
-	cp models/$(FILE) models/best.pt
-	rm -f models/$(FILE)
-	dvc add models/
-	dvc commit
-	dvc push
